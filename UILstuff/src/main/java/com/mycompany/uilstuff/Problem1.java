@@ -66,16 +66,23 @@ class Graph {
         String output = "";
         List<Node> visited = new ArrayList<>();
         queue.add(A);
+        
         //visited.add(A);
         while (!queue.isEmpty()){
             Node current = queue.remove();
-            System.out.println(current+" ");
-            if (current.compareTo(B)==0) return output;
+            current.path.add(current);
+            //System.out.println(current.path);
+            if (current.compareTo(B)==0){
+                List<String> values = current.path.stream().map(x -> x.value).collect(Collectors.toList());
+                return String.join(" => ", values);
+                
+            }
             if (!visited.contains(current))
                 visited.add(current);
                 for (Node i : current.connectedNodes){
                     if(!visited.contains(i) && !queue.contains(i)){
                         queue.add(i);
+                        i.path.addAll(current.path);
                         //visited.add(i);
                     }
             }
@@ -92,10 +99,14 @@ class Graph {
 class Node implements Comparable<Node>{
     public String value;
     public ArrayList<Node> connectedNodes;
+    public ArrayList<Node> path;
+
     
     public Node(String value) {
         this.value = value;
         connectedNodes = new ArrayList<Node>();
+        path = new ArrayList<Node>();
+
     }
     
     public String toString() {
