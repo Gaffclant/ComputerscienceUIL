@@ -27,6 +27,11 @@ public class Problem1 {
             for (int j = 0; j < line.length(); j++) {
                 char c = line.toCharArray()[j];
                 grid[i][j] = c;
+                if (c == 'o'){
+                    graph.rootNode = new Node("o",new int[]{i,j});
+                    graph.nodes.add(graph.rootNode);
+                }
+                /**
                 switch (c) {
                     case 'o':
                         graph.rootNode = new Node("Home");
@@ -40,14 +45,65 @@ public class Problem1 {
                         break;
                     default:
                 }
+                 **/
             }
         }
+        recurse(graph.rootNode.pos, grid, graph, null);
         System.out.println(graph);
 
 
 
 
+
+
     }
+
+    public static void recurse(int[] pos, char[][] grid, Graph graph, Node prev){
+
+        try {
+            char val = grid[pos[0]][pos[1]];
+            Node current = null;
+
+
+
+            switch (val) {
+                case 'x':
+                    return;
+                case 'o':
+                    current = graph.rootNode;
+                    break;
+                    /**
+                    graph.rootNode = new Node("o", pos);
+                    graph.nodes.add(graph.rootNode);
+                    current = graph.rootNode;
+                    break;
+                     **/
+                case '-':
+                    for (Node n : graph.nodes){
+                        if (Arrays.equals(n.pos,pos))
+                            return;
+                    }
+                    if (pos[0] == 0 || pos[0] == grid.length-1 || pos[1] == 0 || pos[1] == grid[0].length-1)
+                        current = new Node(String.format("(E, %s, %s)", pos[0], pos[1]), pos);
+                    else
+                        current = new Node(String.format("(-, %s, %s)", pos[0], pos[1]), pos);
+                    graph.nodes.add(current);
+                    prev.connectedNodes.add(current);
+                    if(!current.connectedNodes.contains(prev))
+                        current.connectedNodes.add(prev);
+                    break;
+            }
+            recurse(new int[]{pos[0] + 1, pos[1]}, grid, graph, current);
+            recurse(new int[]{pos[0], pos[1] + 1}, grid, graph, current);
+            recurse(new int[]{pos[0] - 1, pos[1]}, grid, graph, current);
+            recurse(new int[]{pos[0], pos[1] - 1}, grid, graph, current);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return;
+        }
+
+
+    }
+
 
     public static Graph MakeTestGraph() {
         Node a = new Node("A");
@@ -146,6 +202,14 @@ class Node implements Comparable<Node>{
 
     public Node(String value) {
         this.value = value;
+        connectedNodes = new ArrayList<Node>();
+        path = new ArrayList<Node>();
+
+    }
+
+    public Node(String value, int [] pos) {
+        this.value = value;
+        this.pos = pos;
         connectedNodes = new ArrayList<Node>();
         path = new ArrayList<Node>();
 
